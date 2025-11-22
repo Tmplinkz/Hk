@@ -2,10 +2,17 @@
 from subprocess import run as srun
 import logging
 from os import path as ospath
+from dotenv import load_dotenv
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.FileHandler('log.txt'), logging.StreamHandler()],
                     level=logging.INFO)
+
+load_dotenv('config.env', override=True)
+
+UPSTREAM_REPO = getenv('UPSTREAM_REPO')
+UPSTREAM_BRANCH = getenv('UPSTREAM_BRANCH')
+
 
 if UPSTREAM_REPO is not None:
     if ospath.exists('.git'):
