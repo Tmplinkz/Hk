@@ -101,7 +101,7 @@ for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
 # ==================== AUTO UPDATER (Safe & Silent) ====================
 if UPSTREAM_REPO:
     try:
-        if opath.exists('.git'):
+        if os.path.exists('.git'):
             srun(["rm", "-rf", ".git"], stdout=DEVNULL, stderr=DEVNULL)
 
         cmd = f"""
