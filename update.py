@@ -60,22 +60,11 @@ if DRIVE_DIR and not DRIVE_DIR.endswith("/"):
 if INDEX_URL and not INDEX_URL.endswith("/"):
     INDEX_URL += "/"
 
-# Authorization (Safe int list parser)
-def get_int_list(var_name, default=None):
-    if default is None:
-        default = []
-    raw = getenv(var_name, "").strip()
-    if not raw:
-        return default
-    return [int(x) for x in raw.split() if x.lstrip("-").isdigit()]
 
-OWNER_ID = get_int_list("OWNER_ID")
-if not OWNER_ID:
-    LOGGER.error("OWNER_ID is mandatory! Bot stopped.")
-    sys.exit(1)
+OWNER_ID = getenv("OWNER_ID", "0")
 
-SUDO_USERS = get_int_list("SUDO_USERS")
-EVERYONE_CHATS = get_int_list("EVERYONE_CHATS")
+SUDO_USERS = getenv("SUDO_USERS")
+EVERYONE_CHATS = getenv("EVERYONE_CHATS")
 
 # Log Channel
 LOG_CHANNEL_RAW = getenv("LOG_CHANNEL", "").strip()
@@ -101,18 +90,6 @@ video_mimetype = [
     "video/3gpp", "video/quicktime", "video/x-msvideo", "video/x-ms-wmv",
     "video/x-matroska", "video/webm", "video/x-m4v", "video/mpeg"
 ]
-
-# Memory File Helper
-def memory_file(name=None, contents=None, *, bytes=True):
-    if isinstance(contents, str) and bytes:
-        contents = contents.encode("utf-8")
-    file = BytesIO() if bytes else StringIO()
-    if name:
-        file.name = name
-    if contents:
-        file.write(contents)
-        file.seek(0)
-    return file
 
 # ==================== CREATE REQUIRED FOLDERS ====================
 for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
