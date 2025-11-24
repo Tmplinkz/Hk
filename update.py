@@ -48,9 +48,8 @@ BOT_TOKEN = getenv("BOT_TOKEN", "").strip()
 # Helper function to validate critical config variables
 def _validate_config(var_name, value, check_zero=False):
     """Validate that a critical config variable is set"""
-    if check_zero and (not value or value == 0):
-        raise RuntimeError(f"❌ {var_name} is not set in config.env! Please configure it properly.")
-    elif not check_zero and not value:
+    is_invalid = (not value or (check_zero and value == 0))
+    if is_invalid:
         raise RuntimeError(f"❌ {var_name} is not set in config.env! Please configure it properly.")
 
 # Validate critical variables
