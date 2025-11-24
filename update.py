@@ -45,18 +45,6 @@ API_ID = int(getenv("API_ID", "0") or "0")
 API_HASH = getenv("API_HASH", "").strip()
 BOT_TOKEN = getenv("BOT_TOKEN", "").strip()
 
-# Helper function to validate critical config variables
-def _validate_config(var_name, value, check_zero=False):
-    """Validate that a critical config variable is set"""
-    is_invalid = (not value or (check_zero and value == 0))
-    if is_invalid:
-        raise RuntimeError(f"❌ {var_name} is not set in config.env! Please configure it properly.")
-
-# Validate critical variables
-_validate_config("API_ID", API_ID, check_zero=True)
-_validate_config("API_HASH", API_HASH)
-_validate_config("BOT_TOKEN", BOT_TOKEN)
-
 # Session & Database
 SESSION_NAME = getenv("SESSION_NAME", "VideoEncoderBot")
 MONGO_URI = getenv("MONGO_URI")
