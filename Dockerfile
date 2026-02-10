@@ -17,7 +17,4 @@ COPY . .
 RUN python3 -m pip install --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt
 
-# Add execute permission
-RUN chmod +x run.sh
-
-CMD ["bash", "run.sh"]
+CMD ["sh", "-c", "python3 update.py && python3 -m VideoEncoder"]
