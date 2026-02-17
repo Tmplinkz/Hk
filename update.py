@@ -110,7 +110,7 @@ if UPSTREAM_REPO:
         """
         result = srun(cmd, shell=True, stdout=DEVNULL, stderr=DEVNULL)
         if result.returncode == 0:
-            LOGGER.info(f"Bot Auto-Updated → {UPSTREAM_REPO} ({UPSTREAM_BRANCH})")
+            LOGGER.info(f"Bot Auto-Updated → Upstream Repo! ({UPSTREAM_BRANCH})")
         else:
             LOGGER.warning("Auto-update failed! Check UPSTREAM_REPO & BRANCH.")
     except Exception as e:
