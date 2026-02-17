@@ -3,11 +3,12 @@ FROM python:3.10-slim-bullseye
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Asia/Kolkata"
 
-# Install system packages (without apt ffmpeg)
+# Install system packages – including xz-utils for .tar.xz extraction
 RUN apt-get update && apt-get install -y \
     git wget pv jq python3-dev \
     mediainfo gcc libsm6 libxext6 \
     libfontconfig1 libxrender1 libgl1-mesa-glx \
+    xz-utils \                      # <--- ADD THIS
  && rm -rf /var/lib/apt/lists/*
 
 # Download and install static FFmpeg from BtbN (includes SVT-AV1)
