@@ -1,1 +1,1 @@
-python3 update.py && python3 VideoEncoder/main.py
+worker: python3 update.py && python3 VideoEncoder/main.py
