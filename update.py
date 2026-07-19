@@ -1,7 +1,6 @@
 # ==================== IMPORTS ====================
 from os import path as ospath, getenv, makedirs, remove
 import os
-import shutil
 from logging import basicConfig, INFO, getLogger
 from logging.handlers import RotatingFileHandler
 from subprocess import run as srun, DEVNULL
@@ -88,54 +87,6 @@ video_mimetype = [
 # ==================== CREATE REQUIRED FOLDERS ====================
 for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
     makedirs(folder, exist_ok=True)
-
-# ==================== INSTALL SYSTEM DEPENDENCIES ====================
-os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-os.environ["TZ"] = "Asia/Kolkata"
-
-LOGGER.info("Checking system dependencies...")
-
-# Install apt packages (mirrors Dockerfile)
-apt_packages = [
-    "git", "wget", "pv", "jq", "python3-dev", "mediainfo",
-    "gcc", "libsm6", "libxext6", "libfontconfig1",
-    "libxrender1", "libgl1-mesa-glx", "xz-utils"
-]
-
-srun(["apt-get", "update", "-qq"], stdout=DEVNULL, stderr=DEVNULL)
-apt_result = srun(
-    ["apt-get", "install", "-y", "-qq"] + apt_packages,
-    stdout=DEVNULL, stderr=DEVNULL
-)
-if apt_result.returncode == 0:
-    LOGGER.info("System packages installed successfully.")
-else:
-    LOGGER.warning("Some system packages may have failed to install.")
-
-# Install static ffmpeg (arch-aware, same as Dockerfile)
-if not shutil.which("ffmpeg"):
-    LOGGER.info("Installing static ffmpeg...")
-    arch_raw = srun(
-        "arch | sed 's/aarch64/arm64/' | sed 's/x86_64/64/'",
-        shell=True, capture_output=True, text=True
-    ).stdout.strip()
-    ffmpeg_url = (
-        f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
-        f"ffmpeg-n7.1-latest-linux{arch_raw}-gpl-7.1.tar.xz"
-    )
-    ffmpeg_result = srun(
-        f"wget -q '{ffmpeg_url}' -O /tmp/ffmpeg.tar.xz && "
-        "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
-        "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
-        "rm -rf /tmp/ffmpeg*",
-        shell=True, stdout=DEVNULL, stderr=DEVNULL
-    )
-    if shutil.which("ffmpeg"):
-        LOGGER.info("Static ffmpeg installed successfully.")
-    else:
-        LOGGER.error("ffmpeg installation failed! Encoding will not work.")
-else:
-    LOGGER.info("ffmpeg already installed.")
 
 # ==================== AUTO UPDATER ====================
 if UPSTREAM_REPO:
