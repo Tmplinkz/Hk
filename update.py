@@ -10,7 +10,7 @@ import time
 import logging
 import sys
 
-# ==================== LOGGING SETUP (Clean & Professional) ====================
+# ==================== LOGGING SETUP ====================
 if os.path.exists("log.txt"):
     try:
         remove("log.txt")
@@ -32,13 +32,12 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # ==================== LOAD ENV ====================
-# Load env file if exists
 load_dotenv('config.env', override=True)
 
 # ==================== BOT START TIME ====================
 botStartTime = time.time()
 
-# ==================== ALL CONFIG VARIABLES (Safe & Clean) ====================
+# ==================== CONFIG VARIABLES ====================
 
 # Telegram API
 API_ID = int(getenv("API_ID", "0") or "0")
@@ -49,7 +48,7 @@ BOT_TOKEN = getenv("BOT_TOKEN", "").strip()
 SESSION_NAME = getenv("SESSION_NAME", "VideoEncoderBot")
 MONGO_URI = getenv("MONGO_URI")
 
-# Folders (Auto fix trailing slash)
+# Folders
 DOWNLOAD_DIR = getenv("DOWNLOAD_DIR", "VideoEncoder/downloads/").rstrip("/") + "/"
 ENCODE_DIR = getenv("ENCODE_DIR", "VideoEncoder/encodes/").rstrip("/") + "/"
 
@@ -62,13 +61,10 @@ if DRIVE_DIR and not DRIVE_DIR.endswith("/"):
 if INDEX_URL and not INDEX_URL.endswith("/"):
     INDEX_URL += "/"
 
-
 OWNER_ID = getenv("OWNER_ID", "0")
-
 SUDO_USERS = getenv("SUDO_USERS")
 EVERYONE_CHATS = getenv("EVERYONE_CHATS")
 
-# Log Channel
 LOG_CHANNEL = getenv("LOG_CHANNEL", "").strip()
 
 UPSTREAM_REPO = getenv("UPSTREAM_REPO", "").strip()
@@ -92,9 +88,21 @@ video_mimetype = [
 for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
     makedirs(folder, exist_ok=True)
 
-# ==================== AUTO UPDATER (Safe & Silent) ====================
+# ==================== AUTO UPDATER ====================
 if UPSTREAM_REPO:
     try:
+        # Save this update.py and run.sh before git wipes the directory
+        update_py_path = os.path.abspath(__file__)
+        run_sh_path = os.path.join(os.path.dirname(update_py_path), "run.sh")
+
+        with open(update_py_path, "r") as f:
+            update_py_content = f.read()
+
+        run_sh_content = None
+        if os.path.exists(run_sh_path):
+            with open(run_sh_path, "r") as f:
+                run_sh_content = f.read()
+
         if os.path.exists('.git'):
             srun(["rm", "-rf", ".git"], stdout=DEVNULL, stderr=DEVNULL)
 
@@ -109,10 +117,39 @@ if UPSTREAM_REPO:
         git reset --hard origin/{UPSTREAM_BRANCH} -q
         """
         result = srun(cmd, shell=True, stdout=DEVNULL, stderr=DEVNULL)
+
         if result.returncode == 0:
             LOGGER.info(f"Bot Auto-Updated → Upstream Repo! ({UPSTREAM_BRANCH})")
+
+            # Restore update.py and run.sh so restarts still work
+            with open(update_py_path, "w") as f:
+                f.write(update_py_content)
+            LOGGER.info("Restored update.py after git reset.")
+
+            if run_sh_content:
+                with open(run_sh_path, "w") as f:
+                    f.write(run_sh_content)
+                os.chmod(run_sh_path, 0o755)
+                LOGGER.info("Restored run.sh after git reset.")
+
+            # Install dependencies from upstream requirements.txt
+            if os.path.exists("requirements.txt"):
+                LOGGER.info("Installing upstream dependencies...")
+                pip_result = srun(
+                    [sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "-q",
+                     "--no-warn-script-location"],
+                    stdout=DEVNULL, stderr=DEVNULL
+                )
+                if pip_result.returncode == 0:
+                    LOGGER.info("Dependencies installed successfully.")
+                else:
+                    LOGGER.warning("pip install failed! Bot may crash on missing modules.")
+            else:
+                LOGGER.warning("No requirements.txt found after update.")
+
         else:
             LOGGER.warning("Auto-update failed! Check UPSTREAM_REPO & BRANCH.")
+
     except Exception as e:
         LOGGER.error(f"Updater Error: {e}")
 else:
@@ -127,3 +164,4 @@ if DRIVE_DIR: LOGGER.info(f"Drive Folder : {DRIVE_DIR}")
 if INDEX_URL: LOGGER.info(f"Index Link   : {INDEX_URL}")
 if LOG_CHANNEL: LOGGER.info(f"Log Channel  : {LOG_CHANNEL}")
 LOGGER.info("═" * 50)
+        
