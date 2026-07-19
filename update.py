@@ -32,7 +32,7 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # ==================== LOAD ENV ====================
-load_dotenv('config.env', override=True)
+load_dotenv('config.env', override=False)
 
 # ==================== BOT START TIME ====================
 botStartTime = time.time()
