@@ -1,6 +1,7 @@
 # ==================== IMPORTS ====================
 from os import path as ospath, getenv, makedirs, remove
 import os
+import shutil
 from logging import basicConfig, INFO, getLogger
 from logging.handlers import RotatingFileHandler
 from subprocess import run as srun, DEVNULL
@@ -87,6 +88,34 @@ video_mimetype = [
 # ==================== CREATE REQUIRED FOLDERS ====================
 for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
     makedirs(folder, exist_ok=True)
+
+# ==================== INSTALL FFMPEG ====================
+if not shutil.which("ffmpeg") or "BtbN" not in srun(
+    ["ffmpeg", "-version"], capture_output=True, text=True
+).stdout:
+    LOGGER.info("Installing static ffmpeg with full codec support...")
+    arch_raw = srun(
+        "arch | sed 's/aarch64/arm64/' | sed 's/x86_64/64/'",
+        shell=True, capture_output=True, text=True
+    ).stdout.strip()
+    FFMPEG_VERSION = "n7.1"
+    ffmpeg_url = (
+        f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
+        f"ffmpeg-{FFMPEG_VERSION}-latest-linux{arch_raw}-gpl-{FFMPEG_VERSION[1:]}.tar.xz"
+    )
+    result = srun(
+        f"wget -q '{ffmpeg_url}' -O /tmp/ffmpeg.tar.xz && "
+        "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
+        "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
+        "rm -rf /tmp/ffmpeg*",
+        shell=True, stdout=DEVNULL, stderr=DEVNULL
+    )
+    if shutil.which("ffmpeg"):
+        LOGGER.info(f"Static ffmpeg {FFMPEG_VERSION} installed successfully.")
+    else:
+        LOGGER.error("ffmpeg installation failed!")
+else:
+    LOGGER.info("ffmpeg already installed.")
 
 # ==================== AUTO UPDATER ====================
 if UPSTREAM_REPO:
