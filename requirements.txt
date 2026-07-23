@@ -11,7 +11,7 @@ pySmartDL
 requests
 
 # Database
-dnspython
+dnspython>=2.3.0
 motor
 
 # Others
