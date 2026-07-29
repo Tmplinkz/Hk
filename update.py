@@ -90,32 +90,55 @@ for folder in [DOWNLOAD_DIR, ENCODE_DIR, "VideoEncoder/utils/extras"]:
     makedirs(folder, exist_ok=True)
 
 # ==================== INSTALL FFMPEG ====================
-if not shutil.which("ffmpeg") or "BtbN" not in srun(
-    ["ffmpeg", "-version"], capture_output=True, text=True
-).stdout:
-    LOGGER.info("Installing static ffmpeg with full codec support...")
-    arch_raw = srun(
-        "arch | sed 's/aarch64/arm64/' | sed 's/x86_64/64/'",
-        shell=True, capture_output=True, text=True
-    ).stdout.strip()
-    FFMPEG_VERSION = "n7.1"
-    ffmpeg_url = (
-        f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
-        f"ffmpeg-{FFMPEG_VERSION}-latest-linux{arch_raw}-gpl-{FFMPEG_VERSION[1:]}.tar.xz"
-    )
-    result = srun(
-        f"wget -q '{ffmpeg_url}' -O /tmp/ffmpeg.tar.xz && "
-        "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
-        "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
-        "rm -rf /tmp/ffmpeg*",
-        shell=True, stdout=DEVNULL, stderr=DEVNULL
-    )
-    if shutil.which("ffmpeg"):
-        LOGGER.info(f"Static ffmpeg {FFMPEG_VERSION} installed successfully.")
-    else:
-        LOGGER.error("ffmpeg installation failed!")
+FFMPEG_VERSION = "n7.1"
+
+def _ffmpeg_ok():
+    """Returns True if ffmpeg is installed, working, and is the BtbN static build."""
+    try:
+        result = srun(
+            ["ffmpeg", "-version"],
+            capture_output=True, text=True, timeout=10
+        )
+        return result.returncode == 0 and "BtbN" in result.stdout
+    except Exception:
+        return False
+
+def _install_ffmpeg():
+    """Downloads and installs the BtbN static ffmpeg build. Returns True on success."""
+    try:
+        arch_raw = srun(
+            "arch | sed 's/aarch64/arm64/' | sed 's/x86_64/64/'",
+            shell=True, capture_output=True, text=True, timeout=10
+        ).stdout.strip()
+        ffmpeg_url = (
+            f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
+            f"ffmpeg-{FFMPEG_VERSION}-latest-linux{arch_raw}-gpl-{FFMPEG_VERSION[1:]}.tar.xz"
+        )
+        result = srun(
+            f"wget -q '{ffmpeg_url}' -O /tmp/ffmpeg.tar.xz && "
+            "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
+            "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
+            "chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe && "
+            "rm -rf /tmp/ffmpeg*",
+            shell=True, stdout=DEVNULL, stderr=DEVNULL, timeout=120
+        )
+        return _ffmpeg_ok()
+    except Exception as e:
+        LOGGER.error(f"ffmpeg install error: {e}")
+        return False
+
+if _ffmpeg_ok():
+    LOGGER.info("ffmpeg already installed and verified.")
 else:
-    LOGGER.info("ffmpeg already installed.")
+    for attempt in range(1, 4):
+        LOGGER.info(f"Installing static ffmpeg (attempt {attempt}/3)...")
+        if _install_ffmpeg():
+            LOGGER.info(f"Static ffmpeg {FFMPEG_VERSION} installed successfully.")
+            break
+        LOGGER.warning(f"ffmpeg install attempt {attempt} failed.")
+        time.sleep(3)
+    else:
+        LOGGER.error("ffmpeg installation failed after 3 attempts! Encoding will not work.")
 
 # ==================== AUTO UPDATER ====================
 if UPSTREAM_REPO:
