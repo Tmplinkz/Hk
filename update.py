@@ -104,25 +104,42 @@ def _ffmpeg_ok():
         return False
 
 def _install_ffmpeg():
-    """Downloads and installs the BtbN static ffmpeg build. Returns True on success."""
+    """Downloads and installs BtbN static ffmpeg. Returns True on success."""
     try:
+        # Detect arch and map to BtbN naming
         arch_raw = srun(
-            "arch | sed 's/aarch64/arm64/' | sed 's/x86_64/64/'",
-            shell=True, capture_output=True, text=True, timeout=10
+            "arch", shell=False, capture_output=True, text=True, timeout=10
         ).stdout.strip()
-        ffmpeg_url = (
-            f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
-            f"ffmpeg-{FFMPEG_VERSION}-latest-linux{arch_raw}-gpl-{FFMPEG_VERSION[1:]}.tar.xz"
-        )
-        result = srun(
-            f"wget -q '{ffmpeg_url}' -O /tmp/ffmpeg.tar.xz && "
-            "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
-            "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
-            "chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe && "
-            "rm -rf /tmp/ffmpeg*",
-            shell=True, stdout=DEVNULL, stderr=DEVNULL, timeout=120
-        )
-        return _ffmpeg_ok()
+
+        arch_str = "linuxarm64" if arch_raw == "aarch64" else "linux64"
+
+        # Primary URL (versioned) + fallback (master, always exists)
+        urls = [
+            (
+                f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
+                f"ffmpeg-{FFMPEG_VERSION}-latest-{arch_str}-gpl-{FFMPEG_VERSION[1:]}.tar.xz"
+            ),
+            (
+                f"https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/"
+                f"ffmpeg-master-latest-{arch_str}-gpl.tar.xz"
+            ),
+        ]
+
+        for url in urls:
+            LOGGER.info(f"Trying ffmpeg URL: {url}")
+            result = srun(
+                f"wget -q --timeout=60 --tries=2 '{url}' -O /tmp/ffmpeg.tar.xz && "
+                "tar -xf /tmp/ffmpeg.tar.xz -C /tmp && "
+                "cp /tmp/ffmpeg-*/bin/* /usr/local/bin/ && "
+                "chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe && "
+                "rm -rf /tmp/ffmpeg*",
+                shell=True, stdout=DEVNULL, stderr=DEVNULL, timeout=180
+            )
+            if _ffmpeg_ok():
+                return True
+            LOGGER.warning(f"URL failed: {url}")
+
+        return False
     except Exception as e:
         LOGGER.error(f"ffmpeg install error: {e}")
         return False
@@ -136,7 +153,7 @@ else:
             LOGGER.info(f"Static ffmpeg {FFMPEG_VERSION} installed successfully.")
             break
         LOGGER.warning(f"ffmpeg install attempt {attempt} failed.")
-        time.sleep(3)
+        time.sleep(5)
     else:
         LOGGER.error("ffmpeg installation failed after 3 attempts! Encoding will not work.")
 
@@ -216,4 +233,4 @@ if DRIVE_DIR: LOGGER.info(f"Drive Folder : {DRIVE_DIR}")
 if INDEX_URL: LOGGER.info(f"Index Link   : {INDEX_URL}")
 if LOG_CHANNEL: LOGGER.info(f"Log Channel  : {LOG_CHANNEL}")
 LOGGER.info("═" * 50)
-        
+                 
