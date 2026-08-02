@@ -27,6 +27,10 @@ speedtest-cli
 feedparser
 apscheduler
 
+# Torrent / magnet downloads
+# aria2c is a system binary – installed via apt/apk in Dockerfile, NOT pip
+# See Dockerfile: RUN apt-get install -y aria2
+
 # Google Drive
 google-api-core
 google-auth
