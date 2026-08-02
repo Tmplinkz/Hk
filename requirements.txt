@@ -23,6 +23,10 @@ lxml
 httpx
 speedtest-cli
 
+# RSS + Scheduler
+feedparser
+apscheduler
+
 # Google Drive
 google-api-core
 google-auth
