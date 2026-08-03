@@ -25,7 +25,6 @@ speedtest-cli
 
 # RSS + Scheduler
 feedparser
-apscheduler
 
 # Torrent / magnet downloads
 # aria2c is a system binary – installed via apt/apk in Dockerfile, NOT pip
