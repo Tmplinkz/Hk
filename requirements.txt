@@ -24,6 +24,7 @@ httpx
 speedtest-cli
 
 # RSS + Scheduler
+anitopy
 feedparser
 
 # Torrent / magnet downloads
