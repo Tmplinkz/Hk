@@ -28,6 +28,9 @@ aiohttp
 anitopy
 feedparser
 
+# {audio} template variable – resolves ffprobe language codes (e.g. "jpn") to display names
+langcodes
+
 # Torrent / magnet downloads
 # aria2c is a system binary – installed via apt/apk in Dockerfile, NOT pip
 # See Dockerfile: RUN apt-get install -y aria2
