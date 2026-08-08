@@ -1,6 +1,6 @@
 # Required
 pyrofork==2.2.11
-pyrogram==2.0.77
+pyrogram
 TgCrypto
 python-dotenv
 hachoir
