@@ -1,5 +1,5 @@
 # Required
-wzgram[fast]
+pyrofork
 TgCrypto
 python-dotenv
 hachoir
