@@ -31,3 +31,6 @@ langcodes
 
 # Torrent / magnet downloads
 # aria2c is a system binary – installed via apt/apk in Dockerfile, NOT pip
+
+# MTProto Telegram media transfer
+wzgram[fast]

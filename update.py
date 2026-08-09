@@ -219,7 +219,7 @@ else:
 LOGGER.info("═" * 50)
 LOGGER.info("   VIDEO ENCODER BOT STARTED SUCCESSFULLY!")
 LOGGER.info("═" * 50)
-LOGGER.info(f"Owner ID     : {OWNER_ID[0]}")
+LOGGER.info(f"Owner ID     : {OWNER_ID}")
 if INDEX_URL: LOGGER.info(f"Index Link   : {INDEX_URL}")
 if LOG_CHANNEL: LOGGER.info(f"Log Channel  : {LOG_CHANNEL}")
 LOGGER.info("═" * 50)
