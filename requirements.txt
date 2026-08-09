@@ -1,12 +1,12 @@
-# Required
-pyrotgfork
-TgCrypto
+# Telegram Bot API
+aiogram==3.30.0
 python-dotenv
+
+# Media / metadata
 hachoir
 beautifulsoup4==4.9.1
-bs4==0.0.1
 
-# DDL
+# Downloads
 pySmartDL
 requests
 
@@ -14,21 +14,20 @@ requests
 dnspython==2.3.0
 motor
 
-# Others
+# Other runtime dependencies
 psutil
-js2py
 cloudscraper
 lk21
 lxml
 httpx
 speedtest-cli
 
-# Google Drive
-google-api-core
-google-auth
-oauth2client<4.0.0
-google~=3.0.0
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-httplib2==0.18.0
+# RSS / Scheduler
+aiohttp
+anitopy
+
+# {audio} template variable – resolves ffprobe language codes (e.g. "jpn") to display names
+langcodes
+
+# Torrent / magnet downloads
+# aria2c is a system binary – installed via apt/apk in Dockerfile, NOT pip

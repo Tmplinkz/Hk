@@ -1,12 +1,10 @@
 # ==================== IMPORTS ====================
-from os import path as ospath, getenv, makedirs, remove
+from os import getenv, makedirs, remove
 import os
-import shutil
 from logging import basicConfig, INFO, getLogger
 from logging.handlers import RotatingFileHandler
 from subprocess import run as srun, DEVNULL
 from dotenv import load_dotenv
-from io import BytesIO, StringIO
 import time
 import logging
 import sys
@@ -29,7 +27,6 @@ basicConfig(
 )
 
 LOGGER = getLogger(__name__)
-logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # ==================== LOAD ENV ====================
@@ -40,25 +37,19 @@ botStartTime = time.time()
 
 # ==================== CONFIG VARIABLES ====================
 
-# Telegram API
-API_ID = int(getenv("API_ID", "0") or "0")
-API_HASH = getenv("API_HASH", "").strip()
+# Telegram Bot API
 BOT_TOKEN = getenv("BOT_TOKEN", "").strip()
 
-# Session & Database
-SESSION_NAME = getenv("SESSION_NAME", "VideoEncoderBot")
+# Database
 MONGO_URI = getenv("MONGO_URI")
 
 # Folders
 DOWNLOAD_DIR = getenv("DOWNLOAD_DIR", "VideoEncoder/downloads/").rstrip("/") + "/"
 ENCODE_DIR = getenv("ENCODE_DIR", "VideoEncoder/encodes/").rstrip("/") + "/"
 
-# Google Drive & Index (Optional)
-DRIVE_DIR = getenv("DRIVE_DIR", "").strip()
+# Index (Optional)
 INDEX_URL = getenv("INDEX_URL", "").strip()
 
-if DRIVE_DIR and not DRIVE_DIR.endswith("/"):
-    DRIVE_DIR += "/"
 if INDEX_URL and not INDEX_URL.endswith("/"):
     INDEX_URL += "/"
 
@@ -229,7 +220,6 @@ LOGGER.info("═" * 50)
 LOGGER.info("   VIDEO ENCODER BOT STARTED SUCCESSFULLY!")
 LOGGER.info("═" * 50)
 LOGGER.info(f"Owner ID     : {OWNER_ID[0]}")
-if DRIVE_DIR: LOGGER.info(f"Drive Folder : {DRIVE_DIR}")
 if INDEX_URL: LOGGER.info(f"Index Link   : {INDEX_URL}")
 if LOG_CHANNEL: LOGGER.info(f"Log Channel  : {LOG_CHANNEL}")
 LOGGER.info("═" * 50)

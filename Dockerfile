@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libgl1-mesa-glx \
     xz-utils \
+    aria2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install static FFmpeg from BtbN (includes SVT-AV1)
@@ -33,4 +34,4 @@ COPY . .
 RUN pip3 install --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt
 
-CMD ["sh", "-c", "python3 update.py && python3 -m VideoEncoder"]
+CMD ["python3", "-m", "VideoEncoder"]
